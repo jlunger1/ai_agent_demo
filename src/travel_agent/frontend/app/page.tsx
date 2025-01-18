@@ -8,20 +8,42 @@ export default function Home() {
   const placeholderResponse =
     "Thank you for sharing! Let me gather some information and recommendations tailored to your travel plans. This might take a moment—stay tuned!";
 
-  const handleSubmit = () => {
-    if (!input.trim()) return;
-    setResponse(""); // Clear previous response
-    const responseArray = placeholderResponse.split(""); // Split response into characters
-
-    // Simulate typing effect
-    responseArray.forEach((char, index) => {
-      setTimeout(() => {
-        setResponse((prev) => prev + char); // Add characters one by one
-      }, 30 * index); // Faster typing speed
-    });
-
-    setInput(""); // Clear input field
-  };
+  const handleSubmit = async () => {
+      if (!input.trim()) return;
+      setResponse(""); // Clear previous response
+    
+      try {
+        // Make POST request to backend
+        const res = await fetch("http://localhost:8000/process-query", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query: input }), // Send user's input
+        });
+    
+        if (!res.ok) {
+          throw new Error("Failed to fetch response from backend.");
+        }
+    
+        const data = await res.json();
+        const responseArray = data.response.split(""); // Simulate typing effect
+    
+        // Simulate typing effect
+        responseArray.forEach((char, index) => {
+          setTimeout(() => {
+            setResponse((prev) => prev + char); // Add characters one by one
+          }, 30 * index); // Typing speed
+        });
+    
+      } catch (error) {
+        console.error("Error:", error);
+        setResponse("Sorry, something went wrong. Please try again.");
+      }
+    
+      setInput(""); // Clear input field
+    };
+    
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
