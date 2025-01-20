@@ -15,16 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from core.views import index, process_query
+from django.urls import path, include
 
 urlpatterns = [
-    path("", index, name="index"),
     path('admin/', admin.site.urls),
-]
-
-# add url patterns from core app
-from django.urls import include
-urlpatterns += [
-    path('core/', include('core.urls')),
+    path('core/', include('travel_agent.core.urls'))
 ]

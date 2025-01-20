@@ -47,5 +47,7 @@ dependencies = [
     "sqlparse==0.5.3"
 ]
 
-[tool.setuptools]
-packages = { find = { where = ["src"] } }
+[tool.hatch.build.targets.wheel]
+packages = [
+    "travel_agent",
+]
