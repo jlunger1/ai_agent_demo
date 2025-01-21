@@ -17,7 +17,6 @@ export default function ChatPage() {
   // Handle the first message from the landing page
   useEffect(() => {
     if (firstMessage && !firstMessageHandled.current) {
-      console.log("Processing firstMessage:", firstMessage); // Debugging log
       firstMessageHandled.current = true; // Mark as handled
       addMessage({ role: "user", content: firstMessage });
       fetchResponse(firstMessage);
@@ -92,8 +91,8 @@ export default function ChatPage() {
           </div>
         )}
       </div>
-      <div className="w-full max-w-lg">
-        <div className="relative flex items-center bg-gray-200 rounded-lg p-4 shadow">
+      <div className="w-full flex justify-center">
+        <div className="relative flex items-center w-full max-w-lg bg-gray-200 rounded-lg p-4 shadow">
           <input
             type="text"
             value={input}
