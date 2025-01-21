@@ -1,26 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function ChatPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-
-  const firstMessage = searchParams.get("firstMessage") || "";
+  const firstMessage = searchParams.get("firstMessage") || ""; // Get the first message
   const [input, setInput] = useState("");
   const [conversationHistory, setConversationHistory] = useState<
     { role: string; content: string }[]
   >([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [typingDots, setTypingDots] = useState(".");
+  const firstMessageHandled = useRef(false); // Ref to ensure the first message is only handled once
 
+  // Handle the first message from the landing page
   useEffect(() => {
-    if (firstMessage) {
-      // Add the first message to the conversation history and fetch its response
-      setConversationHistory([{ role: "user", content: firstMessage }]);
+    if (firstMessage && !firstMessageHandled.current) {
+      console.log("Processing firstMessage:", firstMessage); // Debugging log
+      firstMessageHandled.current = true; // Mark as handled
+      addMessage({ role: "user", content: firstMessage });
       fetchResponse(firstMessage);
     }
-  }, [firstMessage]);
+  }, [firstMessage]); // Dependency on firstMessage
+
+  // Typing animation effect
+  useEffect(() => {
+    if (isTyping) {
+      const interval = setInterval(() => {
+        setTypingDots((prev) => (prev.length < 3 ? prev + "." : "."));
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [isTyping]);
+
+  const addMessage = (message: { role: string; content: string }) => {
+    setConversationHistory((prev) => [...prev, message]);
+  };
 
   const fetchResponse = async (message: string) => {
     setIsTyping(true);
@@ -31,13 +47,9 @@ export default function ChatPage() {
         body: JSON.stringify({ query: message }),
       });
       const data = await res.json();
-      const assistantMessage = { role: "assistant", content: data.message || "No response." };
-      setConversationHistory((prev) => [...prev, assistantMessage]);
+      addMessage({ role: "assistant", content: data.message || "No response." });
     } catch (error) {
-      setConversationHistory((prev) => [
-        ...prev,
-        { role: "assistant", content: "Error connecting to the server." },
-      ]);
+      addMessage({ role: "assistant", content: "Error connecting to the server." });
     } finally {
       setIsTyping(false);
     }
@@ -47,7 +59,7 @@ export default function ChatPage() {
     if (!input.trim()) return;
 
     const userMessage = { role: "user", content: input };
-    setConversationHistory((prev) => [...prev, userMessage]);
+    addMessage(userMessage);
     const currentInput = input; // Capture the input before clearing
     setInput(""); // Clear the input box
     await fetchResponse(currentInput);
@@ -61,9 +73,6 @@ export default function ChatPage() {
     <div className="min-h-screen bg-white text-gray-800 flex flex-col p-6">
       <header className="mb-4 flex justify-between items-center">
         <h1 className="text-2xl font-light">Spotradius</h1>
-        <button onClick={() => router.push("/")} className="text-blue-500 hover:underline">
-          Back to Home
-        </button>
       </header>
       <div className="flex-grow overflow-y-auto mb-4">
         {conversationHistory.map((message, index) => (
@@ -77,7 +86,11 @@ export default function ChatPage() {
             </div>
           </div>
         ))}
-        {isTyping && <div className="text-gray-500 text-sm">Spotradius is typing...</div>}
+        {isTyping && (
+          <div className="text-gray-500 text-sm">
+            Spotradius is typing{typingDots}
+          </div>
+        )}
       </div>
       <div className="w-full max-w-lg">
         <div className="relative flex items-center bg-gray-200 rounded-lg p-4 shadow">

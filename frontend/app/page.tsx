@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LandingPage() {
-  const router = useRouter();
+export default function Home() {
   const [input, setInput] = useState("");
+  const router = useRouter();
 
   const handleSubmit = () => {
-    if (input.trim()) {
-      router.push(`/chat?firstMessage=${encodeURIComponent(input)}`);
-    }
+    if (!input.trim()) return;
+
+    // Redirect to the chat page with the first message as a query parameter
+    router.push(`/chat?firstMessage=${encodeURIComponent(input)}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
