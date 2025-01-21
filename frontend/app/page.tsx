@@ -1,27 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function LandingPage() {
+  const router = useRouter();
   const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
-  const placeholderResponse =
-    "Thank you for sharing! Let me gather some information and recommendations tailored to your travel plans. This might take a moment—stay tuned!";
 
   const handleSubmit = () => {
-    if (!input.trim()) return;
-
-    setResponse(""); // Clear previous response
-    const responseArray = placeholderResponse.split(""); // Split response into characters
-
-    // Simulate typing effect
-    responseArray.forEach((char, index) => {
-      setTimeout(() => {
-        setResponse((prev) => prev + char); // Add characters one by one
-      }, 50 * index); // Typing speed
-    });
-
-    setInput(""); // Clear input field
+    if (input.trim()) {
+      router.push(`/chat?firstMessage=${encodeURIComponent(input)}`);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -58,24 +47,11 @@ export default function Home() {
               stroke="currentColor"
               className="w-5 h-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M22 2L11 13"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M22 2L15 22L11 13L2 9L22 2Z"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
             </svg>
           </button>
         </div>
-        {response && (
-          <div className="mt-6 text-gray-800 text-sm leading-relaxed">
-            {response}
-          </div>
-        )}
       </div>
     </div>
   );

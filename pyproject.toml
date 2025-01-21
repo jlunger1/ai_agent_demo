@@ -44,10 +44,12 @@ dependencies = [
     "xlwt==1.3.0",
     "asgiref==3.8.1",
     "django==5.1.5",
-    "sqlparse==0.5.3"
+    "sqlparse==0.5.3",
+    "django-cors-headers==4.6.0",
+    "openai==1.59.8",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = [
-    "travel_agent",
-]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agent", "travel_agent.*"]
+
