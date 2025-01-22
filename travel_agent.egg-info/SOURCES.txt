@@ -1,7 +1,9 @@
 README.md
 pyproject.toml
-agent/__init__.py
-agent/agent.py
+travel_agent/__init__.py
+travel_agent/settings.py
+travel_agent/urls.py
+travel_agent/wsgi.py
 travel_agent.egg-info/PKG-INFO
 travel_agent.egg-info/SOURCES.txt
 travel_agent.egg-info/dependency_links.txt
@@ -14,4 +16,10 @@ travel_agent/core/models.py
 travel_agent/core/tests.py
 travel_agent/core/urls.py
 travel_agent/core/views.py
+travel_agent/core/migrations/0001_initial.py
 travel_agent/core/migrations/__init__.py
+utils/__init__.py
+utils/agent.py
+utils/llm.py
+utils/registry.py
+utils/tools.py

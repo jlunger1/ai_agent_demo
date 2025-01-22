@@ -5,10 +5,10 @@ load_dotenv()
 
 api_key = os.getenv("OPENAI_API_KEY")
 
-class GPT3_5:
-    def __init__(self):
+class ChatGPT:
+    def __init__(self, model="gpt-4o"):
         """
-        Initialize GPT-3.5 with the provided API key.
+        Initialize ChatGPT with the provided API key.
         """
         self.api_key = api_key
         openai.api_key = self.api_key

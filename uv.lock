@@ -180,6 +180,18 @@ wheels = [
 ]
 
 [[package]]
+name = "django-extensions"
+version = "3.2.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8a/f1/318684c9466968bf9a9c221663128206e460c1a67f595055be4b284cde8a/django-extensions-3.2.3.tar.gz", hash = "sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a", size = 277216 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/7e/ba12b9660642663f5273141018d2bec0a1cae1711f4f6d1093920e157946/django_extensions-3.2.3-py3-none-any.whl", hash = "sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401", size = 229868 },
+]
+
+[[package]]
 name = "django-six"
 version = "1.0.5"
 source = { registry = "https://pypi.org/simple" }
@@ -528,6 +540,7 @@ dependencies = [
     { name = "django-admin" },
     { name = "django-cors-headers" },
     { name = "django-excel-response2" },
+    { name = "django-extensions" },
     { name = "django-six" },
     { name = "excel-base" },
     { name = "fastapi" },
@@ -571,6 +584,7 @@ requires-dist = [
     { name = "django-admin", specifier = "==2.0.2" },
     { name = "django-cors-headers", specifier = "==4.6.0" },
     { name = "django-excel-response2", specifier = "==3.0.6" },
+    { name = "django-extensions", specifier = "==3.2.3" },
     { name = "django-six", specifier = "==1.0.5" },
     { name = "excel-base", specifier = "==1.0.4" },
     { name = "fastapi", specifier = "==0.115.6" },

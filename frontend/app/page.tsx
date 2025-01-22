@@ -7,11 +7,34 @@ export default function Home() {
   const [input, setInput] = useState("");
   const router = useRouter();
 
-  const handleSubmit = () => {
+  const startSession = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/start_session/`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.session_id) {
+        return data.session_id; // Return the session ID
+      } else {
+        throw new Error("Failed to start session.");
+      }
+    } catch (error) {
+      console.error("Error starting session:", error);
+      return null;
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!input.trim()) return;
 
-    // Redirect to the chat page with the first message as a query parameter
-    router.push(`/chat?firstMessage=${encodeURIComponent(input)}`);
+    const sessionId = await startSession();
+    if (!sessionId) {
+      alert("Could not start a new session. Please try again.");
+      return;
+    }
+
+    // Redirect to the chat page with the session ID and first message as query parameters
+    router.push(`/chat?session_id=${sessionId}&firstMessage=${encodeURIComponent(input)}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

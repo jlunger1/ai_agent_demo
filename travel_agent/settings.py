@@ -25,6 +25,7 @@ SECRET_KEY = 'django-insecure--g#dzw@ldf!yb5rxi&^1nh#u#sdcbw44$#d+%**i!t@hkj!3%-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 CORS_ALLOW_ALL_ORIGINS = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 ALLOWED_HOSTS = []
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'travel_agent.core',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

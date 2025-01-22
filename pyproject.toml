@@ -47,9 +47,10 @@ dependencies = [
     "sqlparse==0.5.3",
     "django-cors-headers==4.6.0",
     "openai==1.59.8",
+    "django-extensions==3.2.3",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["agent", "travel_agent.*"]
+include = ["utils*", "travel_agent*"]
 

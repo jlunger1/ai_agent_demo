@@ -1,49 +1,50 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const firstMessage = searchParams.get("firstMessage") || ""; // Get the first message
+  const sessionId = searchParams.get("session_id") || ""; // Get the session ID
   const [input, setInput] = useState("");
   const [conversationHistory, setConversationHistory] = useState<
     { role: string; content: string }[]
   >([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingDots, setTypingDots] = useState(".");
-  const firstMessageHandled = useRef(false); // Ref to ensure the first message is only handled once
+  const firstMessageHandled = useRef(false);
+
+  useEffect(() => {
+    if (!sessionId) {
+      alert("Invalid session. Redirecting...");
+      router.push("/");
+    }
+  }, [sessionId]);
 
   // Handle the first message from the landing page
   useEffect(() => {
-    if (firstMessage && !firstMessageHandled.current) {
-      firstMessageHandled.current = true; // Mark as handled
+    if (firstMessage && sessionId && !firstMessageHandled.current) {
+      firstMessageHandled.current = true;
       addMessage({ role: "user", content: firstMessage });
       fetchResponse(firstMessage);
     }
-  }, [firstMessage]); // Dependency on firstMessage
-
-  // Typing animation effect
-  useEffect(() => {
-    if (isTyping) {
-      const interval = setInterval(() => {
-        setTypingDots((prev) => (prev.length < 3 ? prev + "." : "."));
-      }, 500);
-      return () => clearInterval(interval);
-    }
-  }, [isTyping]);
+  }, [firstMessage, sessionId]);
 
   const addMessage = (message: { role: string; content: string }) => {
     setConversationHistory((prev) => [...prev, message]);
   };
 
   const fetchResponse = async (message: string) => {
+    if (!sessionId) return;
+
     setIsTyping(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ask/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: message }),
+        body: JSON.stringify({ query: message, session_id: sessionId }),
       });
       const data = await res.json();
       addMessage({ role: "assistant", content: data.message || "No response." });
@@ -59,8 +60,8 @@ export default function ChatPage() {
 
     const userMessage = { role: "user", content: input };
     addMessage(userMessage);
-    const currentInput = input; // Capture the input before clearing
-    setInput(""); // Clear the input box
+    const currentInput = input;
+    setInput("");
     await fetchResponse(currentInput);
   };
 
@@ -97,7 +98,7 @@ export default function ChatPage() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             placeholder="Type your message..."
             className="flex-grow bg-transparent outline-none text-black placeholder-gray-500 text-sm"
           />
