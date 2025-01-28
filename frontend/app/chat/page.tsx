@@ -72,7 +72,7 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-white text-gray-800 flex flex-col p-6">
       <header className="mb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-light">Spotradius</h1>
+        <h1 className="text-2xl font-light">TravelAgent</h1>
       </header>
       <div className="flex-grow overflow-y-auto mb-4">
         {conversationHistory.map((message, index) => (
@@ -88,7 +88,7 @@ export default function ChatPage() {
         ))}
         {isTyping && (
           <div className="text-gray-500 text-sm">
-            Spotradius is typing{typingDots}
+            TravelAgent is typing{typingDots}
           </div>
         )}
       </div>
