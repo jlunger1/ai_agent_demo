@@ -1,11 +1,12 @@
 # travel_agent
 
 Welcome to Travel Agent! To install the uv environment and use this code run the following:
-'''
+
+```
 uv venv
 uv sync
 uv pip install -e .
-'''
+```
 
 # Potential "WOW" factors to think about building in:
 
