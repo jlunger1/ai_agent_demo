@@ -1,11 +1,30 @@
 # travel_agent
 
-Welcome to Travel Agent! To install the uv environment and use this code run the following:
+Welcome to TravelAgent! This repo contains an agentic AI implementation of a travel assistant. In the form of a chatbot, users can interact with an LLM that augments responses by dynamically calling out to the Google Places API or the Amadeus API for flight search.
+
+Other details:
+- The conversation for each session is saved in the django database. Future implementations to include use of previous conversations as added context (e.g. "memory")
+- Future versions to include a longer list of tools available to the assistant.
+
+
+## Using the repository
+
+To set up the uv environment run the following:
 
 ```
 uv venv
 uv sync
 uv pip install -e .
+```
+
+To turn on the django-based backend API endpoint:
+```
+python manage.py runserver
+```
+
+And to start up the next.js front-end to interact with the travel agent, navigate to frontend/app and run the following:
+```
+npm run dev
 ```
 
 # Potential "WOW" factors to think about building in:
