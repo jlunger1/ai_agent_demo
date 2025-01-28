@@ -9,9 +9,8 @@ session_id = uuid.uuid4()
 # Define test cases for the TravelAgent
 test_inputs = [
     "testing",
-    "Can you find me a flight from Boston to Los Angeles?",
-    "Sure! I'm interested in flying on Feburary 2",  # Should result in a conversational response
-]
+    "I'm looking for fun things to do in Boston",
+    "What is our conversation history?"]
 
 # Loop through test cases and get responses
 for i, user_input in enumerate(test_inputs, 1):

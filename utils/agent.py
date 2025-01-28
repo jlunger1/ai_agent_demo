@@ -1,21 +1,15 @@
 from utils.registry import ToolRegistry
 from travel_agent.core.models import Conversation, ConversationMessage, ToolMethod
-import json
 
 
 class TravelAgent:
     def __init__(self, llm, session_id):
         self.llm = llm
         self.session_id = session_id
-        self.system_prompt = (
-            "You are an AI travel assistant. Your job is to assist users with their travel needs by answering questions "
-            "or using specialized tools when necessary. Always respond clearly and concisely."
-        )
         self.tool_registry = ToolRegistry().get_tool_registry()
-
-        # Initialize or load the conversation
         self.conversation = self._get_or_create_conversation()
         self.conversation_history = self._load_conversation_history()
+        self.system_prompt = self._generate_system_prompt()
 
     def _get_or_create_conversation(self):
         """
@@ -33,62 +27,47 @@ class TravelAgent:
 
     def _save_message(self, sender, content, tool=None):
         """
-        Save a message to the conversation in the database.
+        Save a message to the conversation.
         """
-        ConversationMessage.objects.create(
+        return ConversationMessage.objects.create(
             conversation=self.conversation,
             sender=sender,
             content=content,
             tool=tool,
         )
 
+    def _generate_system_prompt(self):
+        """
+        Generate a system prompt dynamically with the tool registry.
+        """
+        tool_descriptions = "\n".join(
+            [f"- {name}: {info['description']}" for name, info in self.tool_registry.items()]
+        )
+        return f"""
+        You are an advanced AI travel assistant named Spotradius. Your primary goal is to assist users 
+        in planning and managing their travel in a seamless and engaging way.
+
+        Tools available:
+        {tool_descriptions}
+
+        Use the tools thoughtfully to provide enhanced responses. If tool results are already available 
+        in the conversation history, incorporate them naturally into your answers. Keep your answers concise
+        and informative, and maintain a conversational tone throughout the interaction.
+        """
+
     def identify_tool(self):
         """
         Determine if the user's input would benefit from using a tool.
         """
-        prompt = (
-            f"{self.system_prompt}\n\n"
-            f"Available tools:\n"
-            f"{self.tool_registry}\n\n"
-            f"Based on the conversation so far, decide if one of these tools would help. "
-            f"Respond with a JSON object in the format:\n"
-            f'{{ "tool": "<tool_name>" }}\n\n'
-            f"If no tool is needed, respond with an empty JSON object: {{}}.\n\n"
-            f"Conversation:\n{self.conversation_history}"
-        )
+        prompt = f"""
+        {self.system_prompt}
 
-        response = self.llm.query(
-            prompt=prompt,
-            conversation_history=self.conversation_history,
-            response_format={"type": "json_object"},
-        )
-        response = eval(response)
-        return response.get("tool", None)
-
-    def extract_parameters(self, tool_name):
+        Based on the conversation so far, determine if any of the available tools would help answer the user's latest query.
+        Respond with a JSON object in the format:
+        {{ "tool": "<tool_name>" }}
+        If no tool is needed, respond with: {{}}
+        Conversation so far: {self.conversation_history}
         """
-        Extract required parameters for the specified tool from the conversation.
-        """
-        tool_info = self.tool_registry.get(tool_name)
-        if not tool_info:
-            return {"error": f"Tool '{tool_name}' not found."}
-
-        parameters = tool_info["parameters"]
-        description = tool_info["description"]
-
-        prompt = (
-            f"{self.system_prompt}\n\n"
-            f"Tool to use: {tool_name}\nDescription: {description}\n\n"
-            f"The required parameters for this tool are:\n"
-        )
-        for param, format_description in parameters.items():
-            prompt += f"- {param}: {format_description}\n"
-
-        prompt += (
-            "\nBased on the user's conversation so far, extract the required parameters in the correct format "
-            "and respond with a JSON object:\n"
-            '{"extracted_parameters": {"parameter1": "value", ...}, "missing_parameters": ["parameter1", ...]}.\n\n'
-        )
 
         response = self.llm.query(
             prompt=prompt,
@@ -96,64 +75,44 @@ class TravelAgent:
             response_format={"type": "json_object"},
         )
 
-        return eval(response)  # Parsed as a dictionary
+        try:
+            response = eval(response)  # Convert response string to dictionary
+            return response.get("tool", None)
+        except (SyntaxError, ValueError) as e:
+            print(f"Error parsing tool identification response: {e}")
+            return None
 
-    def extract_parameters_conversationally(self, missing_parameters):
+    def use_tool(self, tool_name, query):
         """
-        Use the LLM to generate a conversational response requesting missing parameters.
-        """
-        prompt = (
-            f"{self.system_prompt}\n\n"
-            f"Conversation so far:\n{self.conversation_history}\n\n"
-            f"The user has requested assistance with a task that requires the following information:\n"
-        )
-        for param in missing_parameters:
-            prompt += f"- {param}\n"
-
-        prompt += (
-            "\nPlease compose a friendly, conversational response to the user. "
-            "Your goal is to ask for the missing information clearly and politely, "
-            "while maintaining the flow of the conversation."
-        )
-
-        response = self.llm.query(
-            prompt=prompt,
-            conversation_history=self.conversation_history,
-        )
-
-        self._save_message(sender="assistant", content=response)
-        return response
-
-
-    def use_tool(self, tool_name, parameters):
-        """
-        Use the specified tool with the given parameters.
+        Use a tool, save its result, and return the result for integration into the response.
         """
         tool_info = self.tool_registry.get(tool_name)
         if not tool_info:
             return f"Error: Tool '{tool_name}' not found."
 
         tool_method = tool_info["method"]
-        tool_result = tool_method(**parameters)
+        tool_result = tool_method(query)
 
-        # Fetch the ToolMethod instance from the database
+        # Save tool result to the conversation
         tool_instance = ToolMethod.objects.filter(name=tool_name).first()
-
-        # Save the tool result in the conversation history
-        tool_result_summary = str(tool_result)[:100]  # Limit output to 100 characters for debugging
-        self._save_message(sender="assistant", content=f"Tool result: {tool_result_summary}", tool=tool_instance)
-
-        return tool_result_summary
-
-    def respond_conversationally(self):
-        """
-        Generate a conversational response if no tool is required.
-        """
-        prompt = (
-            f"{self.system_prompt}\n\n"
-            f"Conversation so far:\n{self.conversation_history}\n\n"
-            f"Provide a helpful and natural response to the user's input."
+        self._save_message(
+            sender="assistant",
+            content=f"Tool result: {tool_result}",
+            tool=tool_instance,
         )
+
+        return tool_result
+
+    def respond_conversationally(self, tool_result=None):
+        """
+        Generate a conversational response, optionally incorporating tool results.
+        """
+        prompt = f"""
+        {self.system_prompt}
+
+        Tool result: {tool_result if tool_result else "None"}
+
+        """
 
         response = self.llm.query(
             prompt=prompt,
@@ -170,19 +129,11 @@ class TravelAgent:
         self._save_message(sender="user", content=user_input)
         self.conversation_history.append({"role": "user", "content": user_input})
 
+        # Decide whether a tool is needed
         tool_name = self.identify_tool()
         if tool_name:
-            parameter_response = self.extract_parameters(tool_name)
-
-            if "missing_parameters" in parameter_response and parameter_response["missing_parameters"]:
-                missing_message = self.extract_parameters_conversationally(
-                    parameter_response["missing_parameters"]
-                )
-                return missing_message
-
-            # Assume parameters are complete and use the tool
-            parameters = parameter_response.get("extracted_parameters", {})
-            return self.use_tool(tool_name, parameters)
+            tool_result = self.use_tool(tool_name, query=user_input)
+            # Incorporate tool result into the response
+            return self.respond_conversationally(tool_result=tool_result)
         else:
             return self.respond_conversationally()
-

@@ -4,14 +4,15 @@ import django
 django.setup()
 
 from travel_agent.core.models import ToolMethod
-from utils.tools import AmadeusTool
+from utils.tools import GooglePlacesTool
 
 
 class ToolRegistry:
     def __init__(self):
         # Initialize tool class instances
         self.tool_instances = {
-            "AmadeusTool": AmadeusTool(),
+            "GooglePlacesTool": GooglePlacesTool(),
+            #"AmadeusTool": AmadeusTool(),
         }
         self.registry = {}
 

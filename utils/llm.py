@@ -13,7 +13,7 @@ class ChatGPT:
         self.api_key = api_key
         openai.api_key = self.api_key
 
-    def query(self, prompt, conversation_history=None, max_tokens=150, temperature=0.7, response_format=None):
+    def query(self, prompt, conversation_history=None, max_tokens=500, temperature=0.7, response_format=None):
         """
         Query GPT-3.5 with a prompt and optional conversation history.
 
