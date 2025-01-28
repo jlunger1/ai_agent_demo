@@ -1,6 +1,6 @@
-# travel_agent
+# ai_agent_demo
 
-Welcome to TravelAgent! This repo contains an agentic AI implementation of a travel assistant. In the form of a chatbot, users can interact with an LLM that augments responses by dynamically calling out to the Google Places API or the Amadeus API for flight search.
+Welcome to AI agent demo! In the form of a chatbot, users can interact with an LLM that augments responses by dynamically calling out to tools such as the Google Places API.
 
 Other details:
 - The conversation for each session is saved in the django database. Future implementations to include use of previous conversations as added context (e.g. "memory")
@@ -22,7 +22,7 @@ To turn on the django-based backend API endpoint:
 python manage.py runserver
 ```
 
-And to start up the next.js front-end to interact with the travel agent, navigate to frontend/app and run the following:
+And to start up the next.js front-end to interact with the agent, navigate to frontend/app and run the following:
 ```
 npm run dev
 ```
@@ -36,11 +36,7 @@ The AI can pull from preferences and past interactions (e.g., "You loved hiking 
 
 ## Seamless Integration
 
-Booking flights, hotels, and activities all from the same interface.
-Syncing itineraries with your calendar or travel apps.
-Real-Time Assistance:
-
-The ability to adjust on the fly during the trip (e.g., "Your flight was delayed, so I rebooked your airport transfer.").
+By adding more tools and multi-tool interactions, can the assistant feel like a competent human that seamlessly uses tools to acheive goals without user intervention?
 
 ## Human-Like Decision-Making
 
@@ -58,11 +54,11 @@ Implementation ideas:
 
 ## Real-Time Information
 
-What if the travel agent could reach out to you if something closes unexpectedly, remind you of your upcoming flights, and generally interact with you with real-time information pertinent to your trip? Maybe it could provide you in the moment with any tickets you need? 
+What if the agent could reach out to you if something changes unexpectedly, remind you of your upcoming reservations, and generally interact with you with real-time information? Maybe it could provide you in the moment with any tickets you need? 
 
-Examples including knowing the weather -- what if the assistant reached out to you to recommend an alternative indoor activity for one of the days of your trip? What if the travel assistant knew local news and was updated on everything in your trip location, such as terrorist attacks or one-time scheduled events?
+Examples including knowing the weather -- what if the assistant reached out to you to recommend an alternative indoor activity? What if the travel assistant knew local news and was updated on everything in your location, such as terrorist attacks or one-time scheduled events?
 
 
 ## Random annoying things that I hate 
 
-Finding and putting in my KTN
+Finding passwords and keys (e.g. inputting my KTN or passport information)
